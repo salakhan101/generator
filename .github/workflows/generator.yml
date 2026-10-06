@@ -59,6 +59,7 @@ on:
         type: choice
         options:
           - zedge_1
+          - all_accounts
 
       gemini_session:
         description: "🌐 Gemini Web Session JSON (paste storageState JSON — no API key needed!)"
@@ -204,13 +205,13 @@ jobs:
           // <-- CONFIG: your Firebase Realtime Database URLs (same as in index.html / Core.kt / zedgeN.yml)
           // v28 security: database URLs come from GitHub Secrets ZEDGEn_DB_URL (never written here).
           const FIREBASE_DB_MAP = Object.fromEntries(Object.entries({
-            zedge_1: process.env.ZEDGE1_DB_URL || 'https://zedge1-2624f-default-rtdb.firebaseio.com'
+            zedge_1: process.env.ZEDGE1_DB_URL
           }).filter(([, u]) => u && u.trim()).map(([k, u]) => [k, u.trim().replace(/\/+$/, '')]));
           if (!Object.keys(FIREBASE_DB_MAP).length) { console.error('No ZEDGEn_DB_URL GitHub secret is set - add them in GitHub > Settings > Secrets and variables > Actions'); process.exit(1); }
 
           // ─── R2 WORKER URL ────────────────────────────────────────────────────────
           // v28 security: R2 worker URL comes from the GitHub secret R2_WORKER_URL
-          const R2_WORKER_URL = (process.env.R2_WORKER_URL || 'https://raspy-term-bb6e.salakhan101xxx.workers.dev').trim().replace(/\/+$/, '');
+          const R2_WORKER_URL = (process.env.R2_WORKER_URL || '').trim().replace(/\/+$/, '');
           if (!R2_WORKER_URL) { console.error('GitHub secret R2_WORKER_URL is missing - set it in GitHub > Settings > Secrets and variables > Actions'); process.exit(1); }
 
           // Resolve which DB URLs to target
@@ -220,7 +221,7 @@ jobs:
           } else if (FIREBASE_DB_MAP[TARGET_ACCOUNT]) {
             TARGET_DB_URLS = [{ name: TARGET_ACCOUNT, url: FIREBASE_DB_MAP[TARGET_ACCOUNT] }];
           } else {
-            console.error(`❌ Unknown target_account: "${TARGET_ACCOUNT}". Use: zedge_1`);
+            console.error(`❌ Unknown target_account: "${TARGET_ACCOUNT}". Use: zedge_1, all_accounts`);
             process.exit(1);
           }
 
@@ -1792,7 +1793,7 @@ jobs:
           // <-- CONFIG: your Firebase Realtime Database URLs (same as in index.html / Core.kt / zedgeN.yml)
           // v28 security: database URLs come from GitHub Secrets ZEDGEn_DB_URL (never written here).
           const FIREBASE_DB_MAP = Object.fromEntries(Object.entries({
-            zedge_1: process.env.ZEDGE1_DB_URL || 'https://zedge1-2624f-default-rtdb.firebaseio.com'
+            zedge_1: process.env.ZEDGE1_DB_URL
           }).filter(([, u]) => u && u.trim()).map(([k, u]) => [k, u.trim().replace(/\/+$/, '')]));
           if (!Object.keys(FIREBASE_DB_MAP).length) { console.error('No ZEDGEn_DB_URL GitHub secret is set - add them in GitHub > Settings > Secrets and variables > Actions'); process.exit(1); }
 
@@ -2788,6 +2789,6 @@ jobs:
           echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
           echo "| Mode | Auto-scan (all images missing metadata) |" >> $GITHUB_STEP_SUMMARY
           echo "| Queue path | ${{ github.event.inputs.image_queue_path }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target DBs | zedge_1 |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target DBs | All (zedge_1) |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "> Image metadata generated via Gemini Web (image upload) and patched back to Firebase." >> $GITHUB_STEP_SUMMARY
